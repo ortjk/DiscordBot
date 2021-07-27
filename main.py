@@ -36,6 +36,20 @@ class MyClient(discord.Client):
             except:
                 await message.channel.send(f"{message.author.mention} Invalid operators within '{split_message[1]} {split_message[2]} {split_message[3]}'")
 
+        elif message.content.startswith('$roulette'):
+            try:
+                split_message = message.content.split(' ')
+                with open('roulette_profiles.txt', 'a') as f:
+                    allcontent = f.read().split('\n')
+                    for i in allcontent:
+
+                    if split_message[1].startswith('bet'):
+
+                    elif split_message[1].startswih('reset'):
+
+            except:
+                await message.channel.send(f"{message.author.mention} Invalid syntax within '{message.content}'. Syntax should be '$roulette <bet, reset> <amount> <colour (red, black, green)>'")
+
         elif message.content.startswith('$quote'):
             with open('discordBot_quotes.txt', 'r') as file:
                 n = random.randint(0, 99)
@@ -47,21 +61,21 @@ class MyClient(discord.Client):
             try:
                 print(message.mentions)
             except:
-                await message.channel.send(f"{message.author.mention} Invalid syntax within '{message.content}'. Syntax should be '$kick <mention user>")
+                await message.channel.send(f"{message.author.mention} Invalid syntax within '{message.content}'. Syntax should be '$kick <mention user>'")
 
         elif message.content.startswith('$ban'):
             split_message = message.content.split(' ', 1)
             try:
                 print(message.mentions)
             except:
-                await message.channel.send(f"{message.author.mention} Invalid syntax within '{message.content}'. Syntax should be '$ban <mention user>")
+                await message.channel.send(f"{message.author.mention} Invalid syntax within '{message.content}'. Syntax should be '$ban <mention user>'")
 
         elif message.content.startswith('$giverole'):
             try:
                 print(message.mentions)
                 print(message.role_mentions)
             except:
-                await message.channel.send(f"{message.author.mention} Invalid syntax within '{message.content}'. Syntax should be '$giverole <mention user> <mention role>")
+                await message.channel.send(f"{message.author.mention} Invalid syntax within '{message.content}'. Syntax should be '$giverole <mention user> <mention role>'")
 
         elif message.content.startswith('$help'):
             await message.channel.send("""$whatis <number> <operator> <number>: Returns the result of the input mathematical equation
@@ -70,7 +84,7 @@ class MyClient(discord.Client):
             $ban <mention user> <reason>: Bans the mentioned user and sends them the reason
             $giverole <mention user> <mention role>: Gives the mentioned user the mentioned role""")
 
-        elif message.content.startswith('badword' or 'swearword' or 'notokword'):
+        elif message.content.count('badword' or 'swearword' or 'notokword') != 0:
             await message.delete()
             await message.channel.send(f"{message.author.mention} said a bad word. The message has been deleted.")
 
