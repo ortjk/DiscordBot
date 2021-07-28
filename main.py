@@ -43,15 +43,13 @@ class MyClient(discord.Client):
                     all_content = f.read().split('\n')
                     exists = False
                     user_location = 0
-                    print(all_content)
+                    if ('' in all_content):
+                        all_content.remove('')  # Remove extra newline residue.
                     for i in range(0, len(all_content)):
+                        all_content[i] += "\n"  # Add back the newline we stripped during split.
                         if all_content[i].startswith(str(message.author.id)):
                             exists = True
                             user_location = i
-
-                    if not exists:
-                        all_content.append(f"{message.author.id} 100\n")
-                        user_location = len(all_content) - 1
 
                     if split_message[1].startswith('bet'):
                         roll = random.randint(0, 36)
@@ -87,6 +85,7 @@ class MyClient(discord.Client):
                     elif split_message[1].startswith('reset'):
                         all_content[user_location] = f"{message.author.id} 100\n"
 
+                    f.seek(0)
                     f.truncate(0)
                     f.writelines(all_content)
             # except:
@@ -137,4 +136,4 @@ $giverole <mention user> <mention role>: Gives the mentioned user the mentioned 
 
 
 client = MyClient()
-client.run('ODYyNDM1Mzg1Njg1MzExNDk4.YOYTiw.srwvyy_4tVk-v0YMUwDU8kUZpuA')
+client.run('insert token')
