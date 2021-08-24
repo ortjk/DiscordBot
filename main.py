@@ -31,13 +31,16 @@ class MyClient(discord.Client):
                     await message.channel.send(f"{message.author.mention} The sum is {float(split_message[1]) * float(split_message[3])}")
 
                 elif split_message[2] == '/':
-                    await message.channel.send(f"{message.author.mention} The sum is {float(split_message[1]) / float(split_message[3])}")
+                    if split_message[3] != 0:
+                        await message.channel.send(f"{message.author.mention} The sum is {float(split_message[1]) / float(split_message[3])}")
+                    else:
+                        await message.channel.send("ERROR: Cannot divide by zero")
 
             except:
                 await message.channel.send(f"{message.author.mention} Invalid operators within '{split_message[1]} {split_message[2]} {split_message[3]}'")
 
         elif message.content.startswith('$roulette'):
-            # try:
+            try:
                 split_message = message.content.split(' ')
                 with open('roulette_profiles.txt', 'r+') as f:
                     all_content = f.read().split('\n')
@@ -51,45 +54,64 @@ class MyClient(discord.Client):
                             exists = True
                             user_location = i
 
+                    if not exists:
+                        all_content.append(f"{message.author.id} 100\n")
+
                     if split_message[1].startswith('bet'):
                         roll = random.randint(0, 36)
                         user_score = all_content[user_location].split(' ')
 
-                        if roll > 18:
-                            await message.channel.send("rolled red...")
-                            if split_message[3] == 'red':
-                                all_content[user_location] = f"{message.author.id} {int(user_score[1]) + int(split_message[2])}\n"
-                                await message.channel.send("you win!")
-                            else:
-                                all_content[user_location] = f"{message.author.id} {int(user_score[1]) - int(split_message[2])}\n"
-                                await message.channel.send("you lose!")
+                        if int(split_message[2]) < 0:
+                            0/0 # to get the except error message
 
-                        elif roll > 0:
-                            await message.channel.send("rolled black...")
-                            if split_message[3] == 'black':
-                                all_content[user_location] = f"{message.author.id} {int(user_score[1]) + int(split_message[2])}\n"
-                                await message.channel.send("you win!")
-                            else:
-                                all_content[user_location] = f"{message.author.id} {int(user_score[1]) - int(split_message[2])}\n"
-                                await message.channel.send("you lose!")
+                        if int(user_score[1]) >= int(split_message[2]):
+                            if roll > 18:
+                                await message.channel.send("rolled red...")
+                                if split_message[3] == 'red':
+                                    all_content[user_location] = f"{message.author.id} {int(user_score[1]) + int(split_message[2])}\n"
+                                    await message.channel.send("you win!")
+                                else:
+                                    all_content[user_location] = f"{message.author.id} {int(user_score[1]) - int(split_message[2])}\n"
+                                    await message.channel.send("you lose!")
 
-                        elif roll == 0:
-                            await message.channel.send("rolled green...")
-                            if split_message[3] == 'green':
-                                all_content[user_location] = f"{message.author.id} {int(user_score[1]) + int(split_message[2]) * 34}\n"
-                                await message.channel.send("you win!")
-                            else:
-                                all_content[user_location] = f"{message.author.id} {int(user_score[1]) - int(split_message[2])}\n"
-                                await message.channel.send("you lose!")
+                            elif roll > 0:
+                                await message.channel.send("rolled black...")
+                                if split_message[3] == 'black':
+                                    all_content[user_location] = f"{message.author.id} {int(user_score[1]) + int(split_message[2])}\n"
+                                    await message.channel.send("you win!")
+                                else:
+                                    all_content[user_location] = f"{message.author.id} {int(user_score[1]) - int(split_message[2])}\n"
+                                    await message.channel.send("you lose!")
+
+                            elif roll == 0:
+                                await message.channel.send("rolled green...")
+                                if split_message[3] == 'green':
+                                    all_content[user_location] = f"{message.author.id} {int(user_score[1]) + int(split_message[2]) * 34}\n"
+                                    await message.channel.send("you win!")
+                                else:
+                                    all_content[user_location] = f"{message.author.id} {int(user_score[1]) - int(split_message[2])}\n"
+                                    await message.channel.send("you lose!")
+
+                        else:
+                            await message.channel.send("Your account balance is too low to make that bet. Try using a lower bet, or using the '$roulette reset' command to reset your account balance to 100 points.")
 
                     elif split_message[1].startswith('reset'):
                         all_content[user_location] = f"{message.author.id} 100\n"
+                        await message.channel.send("Your balance has been reset to 100 points")
+
+                    elif split_message[1].startswith('balance'):
+                        user_score = all_content[user_location].split(' ')
+                        user_score[1] = user_score[1].replace('\n', '')
+                        await message.channel.send(f"{message.author.mention} Your balance is currently {user_score[1]} points")
+
+                    elif split_message[1].startswith('rules'):
+                        await message.channel.send("With the '$roulette bet' command, you may bet on 1 of 3 colours: red, black, or green. Red and black have a 2:1 payout, and green has a 35:1 payout. There are 18 black spaces, 18 red spaces, and 1 green space. You may not bet an amount greater than your account balance. Your account balance may be viewed with '$roulette balance'")
 
                     f.seek(0)
                     f.truncate(0)
                     f.writelines(all_content)
-            # except:
-            #     await message.channel.send(f"{message.author.mention} Invalid syntax within '{message.content}'. Syntax should be '$roulette <bet, reset, or balance> <amount> <colour (red, black, green)>'")
+            except:
+                await message.channel.send(f"{message.author.mention} Invalid syntax within '{message.content}'. Syntax should be '$roulette <bet, reset, rules, or balance> <amount> <colour (red, black, or green)>'")
 
         elif message.content.startswith('$quote'):
             with open('discordBot_quotes.txt', 'r') as file:
@@ -126,6 +148,7 @@ class MyClient(discord.Client):
         elif message.content.startswith('$help'):
             await message.channel.send("""$whatis <number> <operator> <number>: Returns the result of the input mathematical equation
 $quote: Return a random quote from a list of 100
+$roulette <bet, reset, rules, or balance> <amount> <colour (red, black, or green)>: Allows the use of the roulette table. Further information can be acquired with '$roulette rules'
 $kick <mention user> <reason>: Kicks the mentioned user with the given reason
 $ban <mention user> <reason>: Bans the mentioned user with the given reason
 $giverole <mention user> <mention role>: Gives the mentioned user the mentioned role""")
